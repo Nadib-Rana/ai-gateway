@@ -15,9 +15,9 @@ pids/
 *.pid.lock
 
 # Environment variables
-.env
-.env.local
-.env.*.local
+# .env
+# .env.local
+# .env.*.local
 
 # OS-specific
 .DS_Store

@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
-import askRoutes from "./routes/askRoutes.js";
+import askRoutes from "./routers/askRoutes.js";
 
 dotenv.config();
 connectDB();
