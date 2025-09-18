@@ -1,27 +1,16 @@
-import { create } from "domain";
-import mongoose, { Query } from "mongoose";
-import { type } from "os";
+import mongoose from "mongoose";
 
-const queryLogSchena = new mongoose.Schema({
-    Query: {
-        type: String,
-        required: true
-    },
-
-    model: {
-        type: String,
-        required: true,
-        enum: ["broadcast", "smart"],
-        default: "broadcast"
-    },
-    response: {
-        type: Array,
-        default: []
-    },
-    createAt: {
-        type: Date,
-        default: Date.now
+const queryLogSchema = new mongoose.Schema(
+  {
+    query: { type: String, required: true },
+    mode: { type: String, enum: ["broadcast", "smart"], default: "broadcast" },
+    responses: {
+      huggingface: { type: String, default: "" },
+      openrouter: { type: String, default: "" },
+      gemini: { type: String, default: "" }
     }
-})
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model("QeryLog", queryLogSchena);
+export default mongoose.model("QueryLog", queryLogSchema);

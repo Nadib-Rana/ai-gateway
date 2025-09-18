@@ -1,6 +1,11 @@
 export const chooseAPI = (query) => {
-  // Example rule-based routing
-  if (/translate|language/i.test(query)) return "HuggingFace";
-  if (/code|programming/i.test(query)) return "OpenRouter";
-  return "HuggingFace"; // default
+  if (!query || typeof query !== "string") return "HuggingFace";
+  const q = query.toLowerCase();
+
+  // basic rules — extend as needed
+  if (/\b(translate|language|translate to|অনুবাদ|ভাষা)\b/.test(q)) return "HuggingFace";
+  if (/\b(code|programming|javascript|python|bug|compile)\b/.test(q)) return "OpenRouter";
+  if (/\b(summary|summarize|short|explain in simple)\b/.test(q)) return "Gemini";
+
+  return "HuggingFace";
 };
