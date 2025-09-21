@@ -1,11 +1,21 @@
-export const chooseAPI = (query) => {
-  if (!query || typeof query !== "string") return "HuggingFace";
-  const q = query.toLowerCase();
+import { callHuggingFace, callOpenRouter, callGemini } from "./agents.js";
 
-  // basic rules — extend as needed
-  if (/\b(translate|language|translate to|অনুবাদ|ভাষা)\b/.test(q)) return "HuggingFace";
-  if (/\b(code|programming|javascript|python|bug|compile)\b/.test(q)) return "OpenRouter";
-  if (/\b(summary|summarize|short|explain in simple)\b/.test(q)) return "Gemini";
+export const askAI = async (prompt) => {
+  try {
+    return { reply: await callHuggingFace(prompt), provider: "huggingface" };
+  } catch (err1) {
+    try {
+      return { reply: await callOpenRouter(prompt), provider: "openrouter" };
+    } catch (err2) {
+      return { reply: await callGemini(prompt), provider: "gemini" };
+    }
+  }
+};
 
-  return "HuggingFace";
+export const cleanReply = (text) => {
+  if (!text) return "";
+  return text
+    .replace(/<[^>]*>/g, "")       // remove HTML/XML-like tags
+    .replace(/\[\/?OUT\]/g, "")    // remove [OUT] or [/OUT]
+    .trim();
 };

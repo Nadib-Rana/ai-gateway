@@ -9,22 +9,23 @@ export default function ChatWindow() {
 
   const handleSend = async () => {
     if (!query.trim()) return;
+
+    // Add user message
     const newMessages = [...messages, { role: "user", text: query }];
     setMessages(newMessages);
     setQuery("");
     setLoading(true);
 
     try {
-      const res = await axios.post("/api/ask", { query });
-      setMessages([
-        ...newMessages,
-        { role: "ai", text: res.data.text || "⚠️ No response" }
-      ]);
+      // Corrected: send { prompt } instead of { query }
+      const res = await axios.post("/api/ask", { prompt: query });
+
+      // Corrected: read response from res.data.reply
+      const aiReply = res.data.reply || "⚠️ No response";
+
+      setMessages([...newMessages, { role: "ai", text: aiReply }]);
     } catch (err) {
-      setMessages([
-        ...newMessages,
-        { role: "ai", text: "❌ Error fetching response" }
-      ]);
+      setMessages([...newMessages, { role: "ai", text: "❌ Error fetching response" }]);
     } finally {
       setLoading(false);
     }

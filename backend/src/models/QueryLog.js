@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
-const queryLogSchema = new mongoose.Schema(
-  {
-    query: { type: String, required: true },
-    mode: { type: String, enum: ["broadcast", "smart"], default: "broadcast" },
-    responses: {
-      huggingface: { type: String, default: "" },
-      openrouter: { type: String, default: "" },
-      gemini: { type: String, default: "" }
-    }
+const queryLogSchema = new mongoose.Schema({
+  prompt: { type: String, required: true },
+  reply: { type: String },
+  provider: { 
+    type: String, 
+    enum: ["huggingface", "openrouter", "gemini", "all_failed"], // ✅ added all_failed
+    required: true 
   },
-  { timestamps: true }
-);
+  success: { type: Boolean, default: true },
+  error: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
 
 export default mongoose.model("QueryLog", queryLogSchema);

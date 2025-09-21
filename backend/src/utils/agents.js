@@ -1,94 +1,70 @@
+// agents.js
 import fetch from "node-fetch";
 
 /**
- * Each function returns a string reply or throws on HTTP-level error.
- * All models used are free-tier and publicly accessible.
+ * ================================
+ *   AI PROVIDER FUNCTIONS
+ * ================================
  */
 
-// ✅ Hugging Face — using public model: flan-t5-base
+// ----------------------
+// Hugging Face: English → Bangla translation
+// ----------------------
 export const callHuggingFace = async (prompt) => {
-  const url = "https://api-inference.huggingface.co/models/google/flan-t5-base";
-  console.log("Calling HuggingFace with prompt:", prompt);
-
+  const url = "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-en-bn";
   const res = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.HF_API_KEY}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ inputs: prompt })
+    body: JSON.stringify({ inputs: prompt }),
   });
 
-  console.log("HuggingFace response status:", res.status);
-
-  if (!res.ok) {
-    const txt = await res.text();
-    console.error("HuggingFace error response:", txt);
-    throw new Error(`HuggingFace error ${res.status}: ${txt}`);
-  }
+  if (!res.ok) throw new Error(`HuggingFace: ${await res.text()}`);
 
   const data = await res.json();
-  console.log("HuggingFace response data:", data);
-
-  if (Array.isArray(data) && data[0]?.generated_text) return data[0].generated_text;
-  if (data.generated_text) return data.generated_text;
-  return JSON.stringify(data); // fallback: return raw response
+  return data?.[0]?.translation_text ?? JSON.stringify(data);
 };
 
-// ✅ OpenRouter — using free model: openchat/openchat-3.5
+// ----------------------
+// OpenRouter: Free model
+// ----------------------
 export const callOpenRouter = async (prompt) => {
   const url = "https://openrouter.ai/api/v1/chat/completions";
-  console.log("Calling OpenRouter with prompt:", prompt);
-
   const res = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "openchat/openchat-3.5",
-      messages: [{ role: "user", content: prompt }]
-    })
+      model: "mistralai/mistral-7b-instruct:free", // working free model
+      messages: [{ role: "user", content: prompt }],
+    }),
   });
 
-  console.log("OpenRouter response status:", res.status);
-
-  if (!res.ok) {
-    const txt = await res.text();
-    console.error("OpenRouter error response:", txt);
-    throw new Error(`OpenRouter error ${res.status}: ${txt}`);
-  }
+  if (!res.ok) throw new Error(`OpenRouter: ${await res.text()}`);
 
   const data = await res.json();
-  console.log("OpenRouter response data:", data);
-
   return data.choices?.[0]?.message?.content ?? JSON.stringify(data);
 };
 
-// ✅ Gemini — using updated model: gemini-2.5-flash-lite with v1 endpoint
+// ----------------------
+// Gemini: Working model
+// ----------------------
 export const callGemini = async (prompt) => {
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`;
-  console.log("Calling Gemini with prompt:", prompt);
-
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
+      contents: [{ parts: [{ text: prompt }] }],
+    }),
   });
 
-  console.log("Gemini response status:", res.status);
-
-  if (!res.ok) {
-    const txt = await res.text();
-    console.error("Gemini error response:", txt);
-    throw new Error(`Gemini error ${res.status}: ${txt}`);
-  }
+  if (!res.ok) throw new Error(`Gemini: ${await res.text()}`);
 
   const data = await res.json();
-  console.log("Gemini response data:", data);
-
   return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? JSON.stringify(data);
 };
